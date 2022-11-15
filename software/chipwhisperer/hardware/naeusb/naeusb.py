@@ -340,6 +340,16 @@ class NAEUSB_Backend:
         hw_location : Optional[Tuple[int, int]]=None) -> usb1.USBDevice:
         # check if we got anything
         dev_list = self.get_possible_devices(idProduct, attempt_access=(not hw_location))
+
+        # filter out the devices we can't read
+        def can_read_device(dev):
+            try:
+                dev.getSerialNumber()
+                return True
+            except:
+                return False
+        dev_list = [dev for dev in dev_list if can_read_device(dev)]
+
         if len(dev_list) == 0:
             raise OSError("Could not find ChipWhisperer. Is it connected?")
 
